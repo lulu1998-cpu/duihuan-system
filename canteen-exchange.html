@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>餐券兑换</title>
+    <!-- 引入Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            color: #333;
+            line-height: 1.5;
+        }
+        .container {
+            width: 100%;
+            margin: 0 auto;
+            background-color: white;
+            min-height: 600px;
+            max-height: 700px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            position: relative;
+            overflow-y: auto;
+        }
+        .header {
+            background: linear-gradient(135deg, #07c160, #10a875);
+            color: white;
+            text-align: center;
+            padding: 16px;
+            font-size: 18px;
+            position: relative;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .back-icon {
+            position: absolute;
+            left: 15px;
+            top: 16px;
+            font-size: 18px;
+        }
+        .content {
+            padding: 16px;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 18px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #07c160;
+            color: white;
+            font-size: 16px;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(7,193,96,0.2);
+        }
+        .btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 3px rgba(7,193,96,0.2);
+        }
+        .btn.secondary {
+            background: #f5f5f5;
+            color: #333;
+            box-shadow: none;
+        }
+        .btn.disabled, .btn:disabled {
+            background: #cccccc;
+            color: #ffffff;
+            opacity: 0.7;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        /* 其他样式省略... */
+        
+        /* 底部导航栏样式 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #fff;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -1px 10px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 33.33%;
+            color: #666;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .nav-item.active {
+            color: #07c160;
+        }
+        .nav-icon {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+        
+        /* 主界面样式 */
+        .main-header {
+            background: linear-gradient(135deg, #29b6f6, #1e88e5);
+            color: white;
+            padding: 30px 20px 60px;
+            position: relative;
+            overflow: hidden;
+        }
+        .company-logo {
+            text-align: center;
+            margin: 10px 0 15px;
+        }
+        .company-logo img {
+            width: 110px;
+            height: auto;
+        }
+        .company-slogan {
+            text-align: center;
+            font-size: 15px;
+            margin-top: 10px;
+            color: rgba(255,255,255,0.9);
+            font-weight: 300;
+        }
+        .wave-bg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="white" fill-opacity="1" d="M0,224L60,213.3C120,203,240,181,360,181.3C480,181,600,203,720,224C840,245,960,267,1080,266.7C1200,267,1320,245,1380,234.7L1440,224L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path></svg>');
+            background-size: cover;
+        }
+        .feature-grid {
+            padding: 20px 15px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: -30px;
+            position: relative;
+            z-index: 10;
+        }
+        .feature-item {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px 15px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            transition: transform 0.2s;
+            position: relative;
+        }
+        .feature-item:active {
+            transform: scale(0.98);
+        }
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            font-size: 22px;
+            color: white;
+        }
+        .feature-icon.orange {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+        }
+        .feature-icon.blue {
+            background: linear-gradient(135deg, #29b6f6, #0288d1);
+        }
+        .feature-icon.purple {
+            background: linear-gradient(135deg, #ab47bc, #7b1fa2);
+        }
+        .feature-title {
+            font-size: 14px;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+        
+        /* 餐饮福利界面样式 */
+        .welfare-header {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            padding: 20px 15px;
+        }
+        .welfare-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .welfare-grid {
+            padding: 20px 15px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        .welfare-card {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            text-decoration: none;
+            color: #333;
+            transition: transform 0.2s;
+        }
+        .welfare-card:active {
+            transform: scale(0.98);
+        }
+        .welfare-img {
+            width: 100%;
+            height: 110px;
+            object-fit: cover;
+        }
+        .welfare-content {
+            padding: 16px;
+        }
+        .welfare-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .welfare-card-desc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        .welfare-card-btn {
+            display: inline-flex;
+            align-items: center;
+            background-color: #f8f8f8;
+            color: #333;
+            border-radius: 18px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .welfare-card-btn i {
+            margin-right: 5px;
+            font-size: 14px;
+        }
+        
+        /* 餐品投票界面样式 */
+        .vote-header {
+            background: linear-gradient(135deg, #2196f3, #1976d2);
+            padding: 20px 15px;
+        }
+        .vote-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .vote-tabs {
+            display: flex;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 25px;
+            padding: 4px;
+            margin: 15px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .vote-tab {
+            flex: 1;
+            text-align: center;
+            padding: 14px 0;
+            font-size: 16px;
+            border-radius: 25px;
+            color: rgba(255,255,255,0.9);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+            letter-spacing: 1px;
+            box-shadow: 0 0 0 rgba(0,0,0,0);
+            z-index: 1;
+        }
+        .vote-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 25px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .vote-tab:not(.active):hover::before {
+            opacity: 1;
+        }
+        .vote-tab i {
+            margin-right: 6px;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+        .vote-tab.active {
+            background-color: white;
+            color: #1976d2;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        .vote-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background-color: #1976d2;
+            border-radius: 3px;
+        }
+        .pulse-hint {
+            position: absolute;
+            top: 8px;
+            right: 20%;
+            width: 10px;
+            height: 10px;
+            background-color: #ff5722;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 6px rgba(255, 87, 34, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(255, 87, 34, 0);
+            }
+        }
+        .dish-list {
+            margin-top: 15px;
+        }
+        .dish-item {
+            background-color: white;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .dish-header {
+            display: flex;
+            padding: 16px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .dish-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+        .dish-info {
+            flex: 1;
+        }
+        .dish-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .dish-desc {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .dish-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+        }
+        .vote-count {
+            display: flex;
+            align-items: center;
+            color: #666;
+            font-size: 13px;
+        }
+        .vote-count i {
+            color: #2196f3;
+            margin-right: 6px;
+            font-size: 16px;
+        }
+        .vote-btn {
+            background-color: #f0f8ff;
+            color: #2196f3;
+            border: 1px solid #2196f3;
+            border-radius: 20px;
+            padding: 8px 18px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .vote-btn:active {
+            transform: scale(0.95);
+        }
+        .vote-btn.voted {
+            background-color: #2196f3;
+            color: white;
+        }
+        .progress-bar {
+            height: 4px;
+            background-color: #f0f0f0;
+            border-radius: 2px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #2196f3;
+            border-radius: 2px;
+        }
+        .vote-status {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #999;
+        }
+        .vote-deadline {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #ff6b00;
+            background-color: #fff5f0;
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .vote-deadline i {
+            margin-right: 6px;
+        }
+        .vote-notice {
+            background-color: #f8f8f8;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 25px;
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+        .vote-notice h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 15px;
+            color: #333;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        .vote-notice h4 i {
+            margin-right: 6px;
+            color: #ff9800;
+        }
+        .vote-notice p {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        .vote-notice p:before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 8px;
+            width: 4px;
+            height: 4px;
+            background-color: #999;
+            border-radius: 50%;
+        }
+        
+        /* 餐券兑换界面样式 */
+        .balance-card {
+            border: none;
+            border-radius: 16px;
+            padding: 24px 20px;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #f6fffa, #ebf8f2);
+            box-shadow: 0 4px 15px rgba(7,193,96,0.1);
+        }
+        .balance-title {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .balance-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #07c160;
+            margin-bottom: 5px;
+        }
+        .balance-note {
+            font-size: 13px;
+            color: rgba(0,0,0,0.5);
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+        }
+        .balance-note i {
+            margin-right: 5px;
+            color: #07c160;
+        }
+        .record-link {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+        .record-link a {
+            color: #07c160;
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            background-color: #f5f5f5;
+            border-radius: 20px;
+            transition: background-color 0.2s;
+        }
+        .record-link a:active {
+            background-color: #e8e8e8;
+        }
+        .record-link a i {
+            margin-right: 6px;
+        }
+        
+        /* 产品表格样式 */
+        .product-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .table-header {
+            background-color: #f8f8f8;
+        }
+        .table-header th {
+            padding: 15px 12px;
+            text-align: center;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+        .product-row td {
+            padding: 15px 10px;
+            text-align: center;
+            vertical-align: middle;
+            border-top: 1px solid #f0f0f0;
+            background-color: white;
+        }
+        .product-row:first-child td {
+            border-top: none;
+        }
+        .product-img-container {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .product-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .product-name {
+            font-size: 13px;
+            margin-top: 6px;
+            color: #333;
+            font-weight: 500;
+        }
+        .product-price-tag {
+            background-color: #fff5f0;
+            border: 1px solid #ffece1;
+            color: #ff6b00;
+            padding: 5px 10px;
+            border-radius: 16px;
+            display: inline-block;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        
+        /* 云效果 */
+        .cloud-container {
+            position: relative;
+            height: 180px;
+            overflow: hidden;
+            margin: 10px 0 30px;
+        }
+        .cloud {
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            background-color: rgba(231, 255, 248, 0.7);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .cloud-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #1e88e5;
+            width: 100%;
+        }
+        .cloud-text h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .cloud-text p {
+            font-size: 16px;
+            color: rgba(30, 136, 229, 0.8);
+            font-weight: 400;
+        }
+        
+        /* 选择日期样式 */
+        .select-time {
+            background-color: #fff9f0;
+            padding: 18px;
+            margin: 25px 0;
+            border-radius: 12px;
+            color: #ff6b00;
+            box-shadow: 0 2px 8px rgba(255,107,0,0.1);
+        }
+        .select-time h3 {
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #ff6b00;
+        }
+        .select-time h3 i {
+            margin-right: 8px;
+        }
+        .date-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            background-color: white;
+            color: #333;
+            margin-top: 10px;
+        }
+        
+        /* 其它界面元素样式 */
+        .total-amount {
+            text-align: right;
+            margin-top: 20px;
+            font-weight: 600;
+            font-size: 18px;
+            color: #ff6b00;
+        }
+        .remaining-amount {
+            text-align: right;
+            margin-top: 8px;
+            color: #07c160;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .error-message {
+            color: #e53935;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #ffebee;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
+        .error-message.show {
+            display: block;
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        
+        /* 兑换成功界面 */
+        .success-icon {
+            font-size: 70px;
+            color: #07c160;
+            text-align: center;
+            margin: 40px 0 20px;
+        }
+        .success-text {
+            text-align: center;
+            font-size: 22px;
+            margin-bottom: 30px;
+            font-weight: 600;
+            color: #333;
+        }
+        .exchange-detail-card {
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .exchange-detail-header {
+            background-color: #f8f8f8;
+            padding: 15px;
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+            border-bottom: 1px solid #eee;
+        }
+        .exchange-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid #f5f5f5;
+            background-color: white;
+        }
+        .exchange-item-name {
+            font-weight: 500;
+        }
+        .exchange-item-quantity {
+            color: #666;
+        }
+        .exchange-item-price {
+            font-weight: 500;
+            color: #ff6b00;
+        }
+        .exchange-total {
+            background-color: white;
+            padding: 15px;
+            text-align: right;
+            font-weight: 600;
+            color: #ff6b00;
+            font-size: 16px;
+        }
+        .exchange-remaining {
+            background-color: white;
+            padding: 0 15px 15px;
+            text-align: right;
+            color: #07c160;
+            font-size: 14px;
+        }
+        .exchange-info-card {
+            background-color: #f8f8f8;
+            padding: 18px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        .exchange-info-item {
+            display: flex;
+            margin-bottom: 12px;
+            align-items: center;
+            font-size: 14px;
+            color: #666;
+        }
+        .exchange-info-item i {
+            width: 24px;
+            margin-right: 10px;
+            color: #1976d2;
+            text-align: center;
+        }
+        
+        /* 兑换记录界面 */
+        .record-card {
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: #f8f8f8;
+            border-bottom: 1px solid #eee;
+        }
+        .record-date {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            color: #333;
+        }
+        .record-date i {
+            margin-right: 6px;
+            color: #666;
+        }
+        .record-status {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            background-color: #e8f7ef;
+            color: #07c160;
+            font-weight: 500;
+        }
+        .record-footer {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background-color: white;
+            border-top: 1px dashed #eee;
+            align-items: center;
+        }
+        .record-location {
+            display: flex;
+            align-items: center;
+            color: #666;
+            font-size: 13px;
+        }
+        .record-location i {
+            margin-right: 5px;
+        }
+        .record-total {
+            font-weight: 600;
+            color: #ff6b00;
+        }
+        .record-empty {
+            text-align: center;
+            padding: 40px 0;
+            color: #999;
+            font-size: 14px;
+        }
+        .record-empty i {
+            font-size: 40px;
+            margin-bottom: 10px;
+            color: #ddd;
+        }
+        
+        /* 模糊效果 */
+        .blur-item {
+            filter: blur(1px);
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        .blur-notice {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        
+        /* 适配iOS状态栏 */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 15px;
+            background-color: #f7f7f7;
+            font-size: 12px;
+            color: #333;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .status-bar-time {
+            font-weight: 600;
+        }
+        .status-bar-icons {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .status-bar-battery {
+            width: 20px;
+            height: 10px;
+            border: 1px solid #333;
+            border-radius: 2px;
+            position: relative;
+            display: inline-block;
+        }
+        .status-bar-battery:after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 14px;
+            height: 6px;
+            background-color: #333;
+            border-radius: 1px;
+        }
+        
+        /* 屏幕设置 */
+        #screens {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            padding: 30px;
+        }
+        .screen {
+            width: 360px;
+            border: 1px solid #ddd;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 18px;
+            overflow: hidden;
+            flex-shrink: 0;
+            margin-bottom: 30px;
+        }
+        .screen-title {
+            background: linear-gradient(to right, #f5f5f5, #e8e8e8);
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        /* 数量控制样式优化 */
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 120px;
+            margin: 0 auto;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            border: 1px solid #f0f0f0;
+            background-color: #fff;
+        }
+        .quantity-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f9f9f9;
+            border: none;
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .quantity-btn:hover {
+            background-color: #f0f0f0;
+        }
+        .quantity-btn:active {
+            transform: scale(0.95);
+        }
+        .quantity-btn:focus {
+            outline: none;
+        }
+        .quantity-input {
+            width: 40px;
+            border: none;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            background-color: #fff;
+            padding: 8px 0;
+        }
+        .quantity-input:focus {
+            outline: none;
+        }
+        .quantity-btn.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .tab-hint {
+            position: relative;
+            text-align: center;
+            font-size: 13px;
+            color: rgba(255,255,255,0.8);
+            margin-top: -10px;
+            margin-bottom: 15px;
+            opacity: 0.9;
+            animation: fadeInOut 2s ease-in-out infinite;
+            pointer-events: none;
+        }
+        .tab-hint i {
+            margin-right: 4px;
+            font-size: 12px;
+        }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div id="screens">
+        <!-- 界面0: 主界面 -->
+        <div class="screen">
+            <div class="screen-title">主界面</div>
+            <div class="container">
+                <!-- iOS状态栏 -->
+                <div class="status-bar">
+                    <div class="status-bar-time">08:48</div>
+                    <div class="status-bar-icons">
+                        <i class="fas fa-signal"></i>
+                        <i class="fas fa-wifi"></i>
+                        <div class="status-bar-battery"></div>
+                    </div>
+                </div>
+                
+                <div class="main-header">
+                    <div class="company-logo">
+                        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 80'><path fill='white' d='M40,20 L60,20 L80,40 L60,60 L40,60 L20,40 Z'/><path fill='white' d='M100,20 L120,20 L140,40 L120,60 L100,60 L80,40 Z'/><path fill='white' d='M160,20 L180,20 L160,40 L180,60 L160,60 L140,40 Z'/></svg>" alt="CSG">
+                    </div>
+                    <div class="company-slogan">诚信 / 担当 / 开放 / 创新</div>
+                    <div class="wave-bg"></div>
+                </div>
+                
+                <div class="cloud-container">
+                    <div class="cloud"></div>
+                    <div class="cloud-text">
+                        <h2>引领智能科技</h2>
+                        <p>开创智慧未来</p>
+                    </div>
+                </div>
+                
+                <div class="feature-grid">
+                    <a href="#" class="feature-item blur-item">
+                        <div class="feature-icon orange">
+                            <i class="fas fa-list-ul"></i>
+                        </div>
+                        <div class="feature-title">项目管理</div>
+                        <div class="blur-notice">开发中</div>
+                    </a>
+                    <a href="#" class="feature-item blur-item">
+                        <div class="feature-icon blue">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="feature-title">入园登记</div>
+                        <div class="blur-notice">开发中</div>
+                    </a>
+                    <a href="#welfare-screen" class="feature-item">
+                        <div class="feature-icon purple">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <div class="feature-title">餐饮福利</div>
+                    </a>
+                </div>
+                
+                <div class="bottom-nav">
+                    <a href="#" class="nav-item active">
+                        <i class="nav-icon fas fa-home"></i>
+                        <span>首页</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="nav-icon fas fa-th-large"></i>
+                        <span>应用</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="nav-icon fas fa-user"></i>
+                        <span>我的</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 界面0.5: 餐饮福利界面 -->
+        <div class="screen">
+            <div class="screen-title">餐饮福利</div>
+            <div class="container" id="welfare-screen">
+                <!-- iOS状态栏 -->
+                <div class="status-bar">
+                    <div class="status-bar-time">08:49</div>
+                    <div class="status-bar-icons">
+                        <i class="fas fa-signal"></i>
+                        <i class="fas fa-wifi"></i>
+                        <div class="status-bar-battery"></div>
+                    </div>
+                </div>
+                
+                <div class="header welfare-header">
+                    <span class="back-icon"><i class="fas fa-chevron-left"></i></span>
+                    <div class="welfare-title">餐饮福利</div>
+                </div>
+                <div class="content">
+                    <div class="welfare-grid">
+                        <a href="#" class="welfare-card">
+                            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'><rect width='400' height='200' fill='%23ffecb3'/><path fill='%23ff9800' d='M150,50 L250,50 L250,150 L150,150 Z'/><path fill='%23ffffff' d='M170,70 L230,70 L230,130 L170,130 Z'/><path fill='%23ff9800' d='M190,90 L210,90 L210,110 L190,110 Z'/></svg>" class="welfare-img">
+                            <div class="welfare-content">
+                                <div class="welfare-card-title">餐券兑换</div>
+                                <div class="welfare-card-desc">未用餐次数可兑换食品</div>
+                                <div class="welfare-card-btn"><i class="fas fa-exchange-alt"></i> 立即兑换</div>
+                            </div>
+                        </a>
+                        <a href="#vote-screen" class="welfare-card">
+                            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'><rect width='400' height='200' fill='%23e3f2fd'/><circle cx='200' cy='100' r='60' fill='%232196f3'/><path fill='%23ffffff' d='M180,80 L220,80 L220,120 L180,120 Z'/><path fill='%232196f3' d='M190,90 L210,90 L210,110 L190,110 Z'/></svg>" class="welfare-img">
+                            <div class="welfare-content">
+                                <div class="welfare-card-title">餐品投票</div>
+                                <div class="welfare-card-desc">参与食堂菜品投票</div>
+                                <div class="welfare-card-btn"><i class="fas fa-vote-yea"></i> 去投票</div>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="card" style="margin-top: 20px;">
+                        <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px; display: flex; align-items: center;">
+                            <i class="fas fa-bullhorn" style="color:#ff9800; margin-right: 8px;"></i> 餐饮公告
+                        </h3>
+                        <div style="font-size: 14px; color: #666; line-height: 1.5;">
+                            <p style="margin-bottom: 8px; padding-left: 20px; position: relative;">
+                                <i class="fas fa-circle" style="position:absolute; left:0; top:8px; font-size:5px; color:#999;"></i> 
+                                为未在当天食堂用餐的员工，提供领取餐券并兑换实物福利
+                            </p>
+                            <p style="margin-bottom: 0; padding-left: 20px; position: relative;">
+                                <i class="fas fa-circle" style="position:absolute; left:0; top:8px; font-size:5px; color:#999;"></i> 
+                                增加菜品选择投票，投票率高的优先供应
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 界面1: 餐券兑换 -->
+        <div class="screen">
+            <div class="screen-title">餐券兑换</div>
+            <div class="container">
+                <!-- iOS状态栏 -->
+                <div class="status-bar">
+                    <div class="status-bar-time">08:51</div>
+                    <div class="status-bar-icons">
+                        <i class="fas fa-signal"></i>
+                        <i class="fas fa-wifi"></i>
+                        <div class="status-bar-battery"></div>
+                    </div>
+                </div>
+                
+                <div class="header">
+                    <span class="back-icon"><i class="fas fa-chevron-left"></i></span>
+                    餐券兑换
+                </div>
+                <div class="content">
+                    <div class="record-link">
+                        <a href="#record-screen">
+                            <i class="fas fa-history"></i> 兑换记录
+                        </a>
+                    </div>
+                    
+                    <div class="balance-card">
+                        <div class="balance-title">可用金额</div>
+                        <div class="balance-value">15.00 元</div>
+                        <div class="balance-note"><i class="fas fa-info-circle"></i> 未使用的金额将会累积到您的账户中</div>
+                    </div>
+                    
+                    <div class="exchange-form">
+                        <table class="product-table">
+                            <thead class="table-header">
+                                <tr>
+                                    <th>可兑换品</th>
+                                    <th>数量</th>
+                                    <th>金额</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="product-row">
+                                    <td class="product-img-cell">
+                                        <div class="product-img-container">
+                                            <img src="https://img.yzcdn.cn/vant/cat.jpeg" alt="大米">
+                                        </div>
+                                        <div class="product-name">大米</div>
+                                    </td>
+                                    <td class="product-quantity-cell">
+                                        <div class="quantity-control">
+                                            <button class="quantity-btn"><i class="fas fa-minus"></i></button>
+                                            <input type="text" value="0" class="quantity-input" readonly>
+                                            <button class="quantity-btn"><i class="fas fa-plus"></i></button>
+                                        </div>
+                                    </td>
+                                    <td class="product-price-cell">
+                                        <div class="product-price-tag">1元</div>
+                                    </td>
+                                </tr>
+                                <tr class="product-row">
+                                    <td class="product-img-cell">
+                                        <div class="product-img-container">
+                                            <img src="https://img.yzcdn.cn/vant/cat.jpeg" alt="面条">
+                                        </div>
+                                        <div class="product-name">面条</div>
+                                    </td>
+                                    <td class="product-quantity-cell">
+                                        <div class="quantity-control">
+                                            <button class="quantity-btn"><i class="fas fa-minus"></i></button>
+                                            <input type="text" value="0" class="quantity-input" readonly>
+                                            <button class="quantity-btn"><i class="fas fa-plus"></i></button>
+                                        </div>
+                                    </td>
+                                    <td class="product-price-cell">
+                                        <div class="product-price-tag">2元</div>
+                                    </td>
+                                </tr>
+                                <tr class="product-row">
+                                    <td class="product-img-cell">
+                                        <div class="product-img-container">
+                                            <img src="https://img.yzcdn.cn/vant/cat.jpeg" alt="食用油">
+                                        </div>
+                                        <div class="product-name">食用油</div>
+                                    </td>
+                                    <td class="product-quantity-cell">
+                                        <div class="quantity-control">
+                                            <button class="quantity-btn"><i class="fas fa-minus"></i></button>
+                                            <input type="text" value="0" class="quantity-input" readonly>
+                                            <button class="quantity-btn"><i class="fas fa-plus"></i></button>
+                                        </div>
+                                    </td>
+                                    <td class="product-price-cell">
+                                        <div class="product-price-tag">3元</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="select-time">
+                            <h3><i class="fas fa-calendar-alt"></i> 选择兑换日期</h3>
+                            <input type="date" class="date-input" id="exchange-date" min="">
+                        </div>
+                        
+                        <div class="total-amount">总金额：0.00 元</div>
+                        <div class="remaining-amount">剩余：15.00 元</div>
+                        <div class="error-message" id="balance-error">余额不足，请减少兑换数量</div>
+                    </div>
+                    
+                    <button class="btn" id="submit-btn"><i class="fas fa-check"></i> 提交兑换</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 界面2: 兑换成功 -->
+        <div class="screen">
+            <div class="screen-title">兑换成功</div>
+            <div class="container">
+                <div class="header">
+                    <span class="back-icon">←</span>
+                    兑换成功
+                </div>
+                <div class="content">
+                    <div class="success-icon">✓</div>
+                    <div class="success-text">兑换成功</div>
+                    
+                    <div class="card">
+                        <div style="font-weight: bold; margin-bottom: 15px;">兑换明细</div>
+                        <div class="exchange-item">
+                            <div>大米</div>
+                            <div>x1</div>
+                            <div>1.00元</div>
+                        </div>
+                        <div class="exchange-item">
+                            <div>面条</div>
+                            <div>x2</div>
+                            <div>4.00元</div>
+                        </div>
+                        <div class="exchange-item">
+                            <div>食用油</div>
+                            <div>x3</div>
+                            <div>9.00元</div>
+                        </div>
+                        <div style="text-align: right; margin-top: 15px; font-weight: bold; color: #ff6b00;">
+                            总计：14.00元
+                        </div>
+                        <div style="text-align: right; margin-top: 8px; color: #07c160; font-size: 14px;">
+                            剩余金额：1.00元（已累积到账户）
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; background-color: #f8f8f8; padding: 15px; border-radius: 12px;">
+                        <div style="margin-bottom: 10px;">
+                            <i style="display: inline-block; width: 18px; text-align: center; margin-right: 5px;">🕒</i>
+                            兑换时间：2023-05-10 12:00
+                        </div>
+                        <div>
+                            <i style="display: inline-block; width: 18px; text-align: center; margin-right: 5px;">📍</i>
+                            兑换地点：食堂服务台
+                        </div>
+                    </div>
+                    
+                    <a href="#" class="btn" style="margin-top: 30px;">返回首页</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 界面3: 兑换记录 -->
+        <div class="screen">
+            <div class="screen-title">兑换记录</div>
+            <div class="container" id="record-screen">
+                <div class="header">
+                    <span class="back-icon">←</span>
+                    兑换记录
+                </div>
+                <div class="content">
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center;">
+                            <div class="record-date">2023-05-10</div>
+                            <div class="record-status">已完成</div>
+                        </div>
+                        <div class="exchange-item">
+                            <div>大米</div>
+                            <div>x1</div>
+                            <div>1.00元</div>
+                        </div>
+                        <div class="exchange-item">
+                            <div>面条</div>
+                            <div>x2</div>
+                            <div>4.00元</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee;">
+                            <div style="color: #666;">食堂</div>
+                            <div style="color: #ff6b00; font-weight: bold;">总计：5.00元</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center;">
+                            <div class="record-date">2023-05-09</div>
+                            <div class="record-status">已完成</div>
+                        </div>
+                        <div class="exchange-item">
+                            <div>食用油</div>
+                            <div>x3</div>
+                            <div>9.00元</div>
+                        </div>
+                        <div class="exchange-item">
+                            <div>馒头</div>
+                            <div>x3</div>
+                            <div>6.00元</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee;">
+                            <div style="color: #666;">食堂</div>
+                            <div style="color: #ff6b00; font-weight: bold;">总计：15.00元</div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 30px; color: #999; font-size: 14px;">
+                        没有更多记录了
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 添加餐品投票界面 -->
+        <div class="screen">
+            <div class="screen-title">餐品投票</div>
+            <div class="container" id="vote-screen">
+                <!-- iOS状态栏 -->
+                <div class="status-bar">
+                    <div class="status-bar-time">08:50</div>
+                    <div class="status-bar-icons">
+                        <i class="fas fa-signal"></i>
+                        <i class="fas fa-wifi"></i>
+                        <div class="status-bar-battery"></div>
+                    </div>
+                </div>
+                
+                <div class="header vote-header">
+                    <span class="back-icon"><i class="fas fa-chevron-left"></i></span>
+                    <div class="vote-title">餐品投票</div>
+                </div>
+                <div class="content">
+                    <div class="vote-tabs">
+                        <div class="vote-tab active"><i class="fas fa-utensils"></i> 特色小吃</div>
+                        <div class="vote-tab"><i class="fas fa-hamburger"></i> 主食<span class="pulse-hint"></span></div>
+                    </div>
+                    
+                    <div class="tab-hint">
+                        <i class="fas fa-hand-point-up"></i> 点击标签切换菜单类型
+                    </div>
+                    
+                    <div class="vote-deadline">
+                        <i class="far fa-clock"></i> 投票截止时间：2023-05-15 18:00
+                    </div>
+                    
+                    <div id="special-food-content">
+                        <div class="dish-list">
+                            <div class="dish-item">
+                                <div class="dish-header">
+                                    <img src="https://img.yzcdn.cn/vant/cat.jpeg" class="dish-img">
+                                    <div class="dish-info">
+                                        <div class="dish-name">香酥鸡肉卷</div>
+                                        <div class="dish-desc">选用优质鸡胸肉，裹以特制面粉，炸至金黄酥脆，搭配新鲜蔬菜和特调酱料，口感丰富。</div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 75%;"></div>
+                                        </div>
+                                        <div class="vote-status">已获得 75 票，排名第 1</div>
+                                    </div>
+                                </div>
+                                <div class="dish-footer">
+                                    <div class="vote-count">
+                                        <i class="fas fa-thumbs-up"></i> 75人支持
+                                    </div>
+                                    <button class="vote-btn voted"><i class="fas fa-check"></i> 已投票</button>
+                                </div>
+                            </div>
+                            
+                            <div class="dish-item">
+                                <div class="dish-header">
+                                    <img src="https://img.yzcdn.cn/vant/cat.jpeg" class="dish-img">
+                                    <div class="dish-info">
+                                        <div class="dish-name">葱油饼</div>
+                                        <div class="dish-desc">传统手工制作，层次分明，外酥里嫩，葱香四溢，搭配特制酱料，回味无穷。</div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 60%;"></div>
+                                        </div>
+                                        <div class="vote-status">已获得 60 票，排名第 2</div>
+                                    </div>
+                                </div>
+                                <div class="dish-footer">
+                                    <div class="vote-count">
+                                        <i class="fas fa-thumbs-up"></i> 60人支持
+                                    </div>
+                                    <button class="vote-btn"><i class="fas fa-plus-circle"></i> 投票</button>
+                                </div>
+                            </div>
+                            
+                            <div class="dish-item">
+                                <div class="dish-header">
+                                    <img src="https://img.yzcdn.cn/vant/cat.jpeg" class="dish-img">
+                                    <div class="dish-info">
+                                        <div class="dish-name">蜜汁叉烧包</div>
+                                        <div class="dish-desc">选用上等猪肉，配以秘制蜜汁酱料，蒸制而成，肉质鲜嫩多汁，甜中带咸，口感丰富。</div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 45%;"></div>
+                                        </div>
+                                        <div class="vote-status">已获得 45 票，排名第 3</div>
+                                    </div>
+                                </div>
+                                <div class="dish-footer">
+                                    <div class="vote-count">
+                                        <i class="fas fa-thumbs-up"></i> 45人支持
+                                    </div>
+                                    <button class="vote-btn"><i class="fas fa-plus-circle"></i> 投票</button>
+                                </div>
+                            </div>
+                            
+                            <div class="dish-item">
+                                <div class="dish-header">
+                                    <img src="https://img.yzcdn.cn/vant/cat.jpeg" class="dish-img">
+                                    <div class="dish-info">
+                                        <div class="dish-name">酸辣粉</div>
+                                        <div class="dish-desc">采用优质红薯粉，配以特制酸辣汤底，加入花生、香菜等配料，酸辣可口，开胃爽口。</div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 30%;"></div>
+                                        </div>
+                                        <div class="vote-status">已获得 30 票，排名第 4</div>
+                                    </div>
+                                </div>
+                                <div class="dish-footer">
+                                    <div class="vote-count">
+                                        <i class="fas fa-thumbs-up"></i> 30人支持
+                                    </div>
+                                    <button class="vote-btn"><i class="fas fa-plus-circle"></i> 投票</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="vote-notice">
+                            <h4><i class="fas fa-info-circle"></i> 投票说明</h4>
+                            <p>特色小吃每位员工每天投票1次，限投1个菜品</p>
+                            <p>如有菜品建议，可联系食堂管理部门</p>
+                        </div>
+                    </div>
+                    
+                    <div id="main-food-content" style="display: none;">
+                        <div class="dish-list">
+                            <div class="dish-item">
+                                <div class="dish-header">
+                                    <img src="https://img.yzcdn.cn/vant/cat.jpeg" class="dish-img">
+                                    <div class="dish-info">
+                                        <div class="dish-name">扬州炒饭</div>
+                                        <div class="dish-desc">精选优质大米，配以鸡蛋、火腿、虾仁、胡萝卜等食材，色香味俱全，营养丰富。</div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 85%;"></div>
+                                        </div>
+                                        <div class="vote-status">已获得 85 票，排名第 1</div>
+                                    </div>
+                                </div>
+                                <div class="dish-footer">
+                                    <div class="vote-count">
+                                        <i class="fas fa-thumbs-up"></i> 85人支持
+                                    </div>
+                                    <button class="vote-btn"><i class="fas fa-plus-circle"></i> 投票</button>
+                                </div>
+                            </div>
+                            
+                            <div class="dish-item">
+                                <div class="dish-header">
+                                    <img src="https://img.yzcdn.cn/vant/cat.jpeg" class="dish-img">
+                                    <div class="dish-info">
+                                        <div class="dish-name">手工水饺</div>
+                                        <div class="dish-desc">现包现煮，皮薄馅大，口感鲜美，搭配特制蘸料，回味无穷。</div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 68%;"></div>
+                                        </div>
+                                        <div class="vote-status">已获得 68 票，排名第 2</div>
+                                    </div>
+                                </div>
+                                <div class="dish-footer">
+                                    <div class="vote-count">
+                                        <i class="fas fa-thumbs-up"></i> 68人支持
+                                    </div>
+                                    <button class="vote-btn"><i class="fas fa-plus-circle"></i> 投票</button>
+                                </div>
+                            </div>
+                            
+                            <div class="dish-item">
+                                <div class="dish-header">
+                                    <img src="https://img.yzcdn.cn/vant/cat.jpeg" class="dish-img">
+                                    <div class="dish-info">
+                                        <div class="dish-name">蔬菜拌面</div>
+                                        <div class="dish-desc">选用手工面条，配以时令蔬菜和特制酱料，健康可口，清爽开胃。</div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 56%;"></div>
+                                        </div>
+                                        <div class="vote-status">已获得 56 票，排名第 3</div>
+                                    </div>
+                                </div>
+                                <div class="dish-footer">
+                                    <div class="vote-count">
+                                        <i class="fas fa-thumbs-up"></i> 56人支持
+                                    </div>
+                                    <button class="vote-btn"><i class="fas fa-plus-circle"></i> 投票</button>
+                                </div>
+                            </div>
+                            
+                            <div class="dish-item">
+                                <div class="dish-header">
+                                    <img src="https://img.yzcdn.cn/vant/cat.jpeg" class="dish-img">
+                                    <div class="dish-info">
+                                        <div class="dish-name">卤肉饭</div>
+                                        <div class="dish-desc">精选五花肉慢炖入味，搭配鲜香米饭，肥而不腻，香气四溢。</div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 42%;"></div>
+                                        </div>
+                                        <div class="vote-status">已获得 42 票，排名第 4</div>
+                                    </div>
+                                </div>
+                                <div class="dish-footer">
+                                    <div class="vote-count">
+                                        <i class="fas fa-thumbs-up"></i> 42人支持
+                                    </div>
+                                    <button class="vote-btn"><i class="fas fa-plus-circle"></i> 投票</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="vote-notice">
+                            <h4><i class="fas fa-info-circle"></i> 投票说明</h4>
+                            <p>主食每位员工每天投票1次，限投1个菜品</p>
+                            <p>如有菜品建议，可联系食堂管理部门</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 交互逻辑
+        document.querySelectorAll('.quantity-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const input = this.parentNode.querySelector('.quantity-input');
+                let value = parseInt(input.value);
+                
+                if (this.querySelector('.fa-plus')) {
+                    input.value = value + 1;
+                } else if (this.querySelector('.fa-minus') && value > 0) {
+                    input.value = value - 1;
+                }
+                
+                // 更新总金额
+                updateTotal();
+            });
+        });
+        
+        // 设置日期选择器的最小日期为今天
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const formattedToday = `${yyyy}-${mm}-${dd}`;
+        document.getElementById('exchange-date').min = formattedToday;
+        document.getElementById('exchange-date').value = formattedToday;
+        
+        function updateTotal() {
+            let total = 0;
+            const inputs = document.querySelectorAll('.quantity-input');
+            const prices = [1, 2, 3]; // 对应三个商品的价格
+            
+            inputs.forEach((input, index) => {
+                if (index < 3) { // 只计算表格中的三个产品
+                    total += parseInt(input.value) * prices[index];
+                }
+            });
+            
+            const balanceValue = 15.00; // 假设当前余额为15元
+            const remaining = (balanceValue - total).toFixed(2);
+            
+            document.querySelector('.total-amount').textContent = `总金额：${total.toFixed(2)} 元`;
+            document.querySelector('.remaining-amount').textContent = `剩余：${remaining} 元`;
+            
+            // 检查剩余金额，如果小于0则禁用提交按钮
+            const submitBtn = document.getElementById('submit-btn');
+            const errorMsg = document.getElementById('balance-error');
+            
+            if (parseFloat(remaining) < 0) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('disabled');
+                errorMsg.classList.add('show');
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('disabled');
+                errorMsg.classList.remove('show');
+            }
+        }
+        
+        // 餐品投票交互
+        document.querySelectorAll('.vote-btn').forEach(btn => {
+            if (!btn.classList.contains('voted')) {
+                btn.addEventListener('click', function() {
+                    // 切换投票状态
+                    if (this.classList.contains('voted')) {
+                        this.classList.remove('voted');
+                        this.innerHTML = '<i class="fas fa-plus-circle"></i> 投票';
+                    } else {
+                        this.classList.add('voted');
+                        this.innerHTML = '<i class="fas fa-check"></i> 已投票';
+                        
+                        // 显示投票成功提示
+                        alert('投票成功！');
+                    }
+                });
+            }
+        });
+        
+        document.querySelectorAll('.vote-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.vote-tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                // 切换内容区域
+                const isMainFood = this.textContent.trim() === '主食';
+                document.getElementById('special-food-content').style.display = isMainFood ? 'none' : 'block';
+                document.getElementById('main-food-content').style.display = isMainFood ? 'block' : 'none';
+            });
+        });
+    </script>
+</body>
+</html> 
